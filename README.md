@@ -52,39 +52,21 @@ Group 1: Dwayne Johnson, Beyoncé, Zendaya, Rihanna
 Group 2: Chris Hemsworth, Robert Downey Jr., Taylor Swift, Scarlett Johansson
 Group 3: Tom Hanks, Leonardo DiCaprio, Natalie Portman, Ryan Gosling
 Group 4: Emma Watson, Adele, Keanu Reeves
+...
+```
 
--------- Round 2 --------
-Group 1: Scarlett Johansson, Zendaya, Keanu Reeves, Natalie Portman
-Group 2: Dwayne Johnson, Emma Watson, Leonardo DiCaprio, Taylor Swift
-Group 3: Chris Hemsworth, Tom Hanks, Adele, Beyoncé
-Group 4: Ryan Gosling, Rihanna, Robert Downey Jr.
+## Previews
 
--------- Round 3 --------
-Group 1: Zendaya, Robert Downey Jr., Leonardo DiCaprio, Adele
-Group 2: Natalie Portman, Chris Hemsworth, Emma Watson, Rihanna
-Group 3: Taylor Swift, Beyoncé, Ryan Gosling, Keanu Reeves
-Group 4: Dwayne Johnson, Tom Hanks, Scarlett Johansson
+Dashboard in Jupyter/Colab with attendance tabs, quality metrics, and heatmap:
 
--------- Round 4 --------
-Group 1: Taylor Swift, Tom Hanks, Zendaya, Rihanna
-Group 2: Leonardo DiCaprio, Keanu Reeves, Chris Hemsworth, Dwayne Johnson
-Group 3: Natalie Portman, Robert Downey Jr., Beyoncé, Emma Watson
-Group 4: Adele, Ryan Gosling, Scarlett Johansson
+![Dashboard Overview](images/2025-09-03-1.png)  
+*Dashboard overview with attendance checkboxes and controls.*
 
--------- Round 5 --------
-Group 1: Zendaya, Emma Watson, Ryan Gosling, Chris Hemsworth
-Group 2: Leonardo DiCaprio, Scarlett Johansson, Rihanna, Beyoncé
-Group 3: Taylor Swift, Adele, Natalie Portman, Dwayne Johnson
-Group 4: Robert Downey Jr., Tom Hanks, Keanu Reeves
+![Quality Metrics](images/2025-09-03-2.png)  
+*Quality metrics: share of new vs repeated pairs.*
 
--------- Round 6 --------
-Group 1: Beyoncé, Ryan Gosling, Dwayne Johnson, Robert Downey Jr.
-Group 2: Taylor Swift, Keanu Reeves, Rihanna, Adele
-Group 3: Zendaya, Scarlett Johansson, Emma Watson, Tom Hanks
-Group 4: Leonardo DiCaprio, Natalie Portman, Chris Hemsworth
-
-
-
+![Heatmap](images/2025-09-03-3.png)  
+*Heatmap of how often each pair of students was grouped together.*
 
 ## License
 This project is licensed under the MIT License.
