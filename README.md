@@ -1,17 +1,50 @@
 # Random Group Generator
 
-This is a simple Python script for generating random student groups over multiple rounds, 
-while minimizing repeated pairings.
+This project provides a simple Python tool for generating random student groups across multiple rounds,  
+while minimizing repeated pairings. It is designed for classrooms, workshops, or study sessions.
+
+## Features
+- Balances group sizes automatically.  
+- Minimizes repeated pairings across rounds.  
+- Supports marking students as **present** or **absent** using `[ "Name", 1/0 ]` format.  
+- Works both as a standalone Python script (`group_generator.py`) or inside Jupyter/Colab.  
 
 ## Usage
 
+### 1. Marking attendance
+Each student is defined as a pair:
+```python
+["Alice", 1],   # 1 = present
+["Bob", 0],     # 0 = absent
+```
+Only students with `1` are included when generating groups.
+
+### 2. Running in terminal
+Edit the `ClassA` or `ClassB` lists in the script to match your students, then run:
+
 ```bash
-python group_generator.py
+python group_generator.py --class ClassA --groups 4 --rounds 2
 ```
 
-Edit the `ClassA` or `ClassB` lists in the script to match your students.  
-Configure the number of groups and rounds at the bottom of the file.
+Optional arguments:
+- `--class` (`ClassA` or `ClassB`, default `ClassA`)
+- `--groups` number of groups per round (default 4)
+- `--rounds` number of rounds (default 2)
+- `--seed` random seed for reproducibility (default 42)
+
+### 3. Running in Jupyter / Colab
+Use the notebook-friendly version `group_generator_notebook.py`.  
+Set the config variables (`SELECTED_CLASS`, `N_GROUPS`, `ROUNDS`) and run the last cell to see the schedule.
+
+## Example output
+```
+Students (present): 12 | Groups per round: 4
+-------- Round 1 --------
+Group 1: StudentA01, StudentA04, StudentA09
+Group 2: StudentA02, StudentA05, StudentA12
+Group 3: StudentA03, StudentA06, StudentA10
+Group 4: StudentA07, StudentA08, StudentA11
+```
 
 ## License
-
 This project is licensed under the MIT License.
