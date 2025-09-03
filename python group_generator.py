@@ -335,7 +335,7 @@ def build_dashboard_with_attendance(CLASS_MAP):
     controls = widgets.HBox([groups_int, rounds_int, seed_txt, restarts_int, run_btn])
 
     # --- Wrap EVERYTHING in a scrollable container (outer scroll) ---
-    ui = widgets.VBox([controls, att_tabs, help_html, tabs_out], layout=widgets.Layout(height="1800px", overflow="auto")
+    ui = widgets.VBox([att_tabs, help_html, controls, tabs_out], layout=widgets.Layout(height="1800px", overflow="auto")
 )
 
     def _parse_seed(text):
@@ -432,8 +432,8 @@ MyPhysicsClass = [
 ]
 
 CLASS_MAP = {
-    "MyMathClass": MyMathClass,
-    "MyPhysicsClass": MyPhysicsClass,
+    "My Math Class": MyMathClass,
+    "My Physics Class": MyPhysicsClass,
 }
 
 # Show the dashboard:
