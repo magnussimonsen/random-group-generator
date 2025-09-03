@@ -40,10 +40,20 @@ Set the config variables (`SELECTED_CLASS`, `N_GROUPS`, `ROUNDS`) and run the la
 ```
 Students (present): 12 | Groups per round: 4
 -------- Round 1 --------
-Group 1: StudentA01, StudentA04, StudentA09
-Group 2: StudentA02, StudentA05, StudentA12
-Group 3: StudentA03, StudentA06, StudentA10
-Group 4: StudentA07, StudentA08, StudentA11
+Group 1: StudentA02, StudentA04, StudentA06
+Group 2: StudentA03, StudentA08, StudentA10
+Group 3: StudentA01, StudentA12, StudentA07
+Group 4: StudentA05, StudentA11, StudentA09
+-------- Round 2 --------
+Group 1: StudentA03, StudentA02, StudentA09
+Group 2: StudentA01, StudentA11, StudentA06
+Group 3: StudentA12, StudentA08, StudentA05
+Group 4: StudentA10, StudentA07, StudentA04
+-------- Round 3 --------
+Group 1: StudentA12, StudentA10, StudentA09
+Group 2: StudentA06, StudentA07, StudentA08
+Group 3: StudentA01, StudentA02, StudentA05
+Group 4: StudentA03, StudentA04, StudentA11
 ```
 
 ## License
