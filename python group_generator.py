@@ -84,8 +84,7 @@ def schedule_groups(students, n_groups, rounds, seed=None, restarts=200):
                 for j in range(i + 1, len(g)):
                     pair_counts[frozenset((g[i], g[j]))] += 1
 
-        # Shuffle before next round to avoid positional bias
-        rng.shuffle(students)
+        rng.shuffle(students)  # shuffle before next round
 
     return all_rounds
 
@@ -121,11 +120,11 @@ def schedule_quality(rounds):
                         r_new += 1
         r_pct = 100.0 * r_new / r_total if r_total else 100.0
         per_round_pct.append(r_pct)
-        per_round_counts.append({"nye": r_new, "totalt": r_total})
+        per_round_counts.append({"new": r_new, "total": r_total})
 
     overall_pct = 100.0 * new_pairs / total_pairs if total_pairs else 100.0
     counts = {
-        "overall": {"nye": new_pairs, "totalt": total_pairs},
+        "overall": {"new": new_pairs, "total": total_pairs},
         "per_round": per_round_counts,
     }
     return overall_pct, per_round_pct, counts
@@ -154,18 +153,21 @@ def list_repeated_pairs(rounds, min_repeats=2):
 def print_quality_report(rounds):
     overall, per_round, counts = schedule_quality(rounds)
     o = counts["overall"]
-    print(f"\n=== KVALITETSINDEKS ===")
-    print(f"Totalt: {overall:6.2f}%  (nye par: {o['nye']} / {o['totalt']})")
+    print(f"\n=== QUALITY INDEX ===")
+    print(f"Overall: {overall:6.2f}%  (new pairs: {o['new']} / {o['total']})")
     for r, (pct, c) in enumerate(zip(per_round, counts["per_round"]), start=1):
-        print(f"Runde {r}: {pct:6.2f}%  (nye par: {c['nye']} / {c['totalt']})")
+        print(f"Round {r}: {pct:6.2f}%  (new pairs: {c['new']} / {c['total']})")
 
 def print_repeated_pairs(rounds, min_repeats=2, limit=None):
     """Print pairs appearing >= min_repeats times, with the rounds."""
     repeated = list_repeated_pairs(rounds, min_repeats=min_repeats)
-    print(f"\n=== GJENTATTE PAR (minst {min_repeats} ganger) ===")
+    if not repeated:
+        print("\nNo repeated pairs 👍")
+        return
+    print(f"\n=== REPEATED PAIRS (at least {min_repeats} times) ===")
     count = 0
     for (a, b), c, rs in repeated:
-        print(f"{a} – {b}: {c} ganger  (runder: {', '.join(map(str, rs))})")
+        print(f"{a} – {b}: {c} times  (rounds: {', '.join(map(str, rs))})")
         count += 1
         if limit is not None and count >= limit:
             break
@@ -182,19 +184,19 @@ def plot_quality(rounds):
 
     plt.figure()
     plt.plot(range(1, len(per_round_pct)+1), per_round_pct, marker="o")
-    plt.title("Andel nye par per runde (%)")
-    plt.xlabel("Runde")
-    plt.ylabel("Nye par (%)")
+    plt.title("Share of new pairs per round (%)")
+    plt.xlabel("Round")
+    plt.ylabel("New pairs (%)")
     plt.ylim(0, 105)
     plt.grid(True)
     plt.show()
 
-    repeated_per_round = [c["totalt"] - c["nye"] for c in counts["per_round"]]
+    repeated_per_round = [c["total"] - c["new"] for c in counts["per_round"]]
     plt.figure()
     plt.bar(range(1, len(repeated_per_round)+1), repeated_per_round)
-    plt.title("Antall gjentatte par per runde")
-    plt.xlabel("Runde")
-    plt.ylabel("Antall gjentatte par")
+    plt.title("Number of repeated pairs per round")
+    plt.xlabel("Round")
+    plt.ylabel("Repeated pairs")
     plt.grid(True)
     plt.show()
 
@@ -215,7 +217,7 @@ def plot_pair_matrix(rounds):
 
     plt.figure()
     plt.imshow(M, interpolation="nearest")
-    plt.title("Samlokasjonsmatrise (antall ganger i samme gruppe)")
+    plt.title("Co-occurrence matrix (times in same group)")
     plt.xticks(range(n), names, rotation=90)
     plt.yticks(range(n), names)
     plt.colorbar()
@@ -231,26 +233,18 @@ import ipywidgets as widgets
 
 def _render_schedule(plan):
     for r, groups in enumerate(plan, start=1):
-        print(f"-------- Runde {r} --------")
+        print(f"-------- Round {r} --------")
         for i, g in enumerate(groups, start=1):
-            print(f"Gruppe {i}: {', '.join(g)}")
+            print(f"Group {i}: {', '.join(g)}")
         print("")
 
 def make_attendance_tabs(CLASS_MAP):
-    """
-    Create a Tab widget with one tab per class.
-    Each tab has checkboxes for attendance + 'Alle'/'Ingen' buttons.
-    Returns: tabs, class_names, checkbox_map
-      - tabs: widgets.Tab
-      - class_names: list[str] in tab order
-      - checkbox_map: dict[class_name] -> list[widgets.Checkbox]
-    """
+    """One tab per class with checkboxes for attendance."""
     class_names = sorted(CLASS_MAP.keys())
     checkbox_map = {}
     tab_children = []
 
     for cname in class_names:
-        # Create a checkbox per student, default value from present flag (1/0)
         checks = []
         for name, present in CLASS_MAP[cname]:
             cb = widgets.Checkbox(value=bool(present), description=name, indent=False)
@@ -258,8 +252,8 @@ def make_attendance_tabs(CLASS_MAP):
         checkbox_map[cname] = checks
 
         # Select all / none buttons
-        btn_all = widgets.Button(description="Marker alle")
-        btn_none = widgets.Button(description="Fjern alle")
+        btn_all = widgets.Button(description="Select all")
+        btn_none = widgets.Button(description="Clear all")
 
         def make_handler(boxes, val):
             def _h(_):
@@ -270,9 +264,8 @@ def make_attendance_tabs(CLASS_MAP):
         btn_all.on_click(make_handler(checks, True))
         btn_none.on_click(make_handler(checks, False))
 
-        # Layout the tab
         header = widgets.HBox([btn_all, btn_none])
-        body = widgets.VBox(checks, layout=widgets.Layout(max_height="600px", overflow="auto"))
+        body = widgets.VBox(checks, layout=widgets.Layout(max_height="800px", overflow="auto"))
         tab_box = widgets.VBox([header, body])
         tab_children.append(tab_box)
 
@@ -290,41 +283,60 @@ def get_present_from_tab(selected_class, checkbox_map):
 def build_dashboard_with_attendance(CLASS_MAP):
     """
     Interactive dashboard with attendance tabs:
-    - Tabs: one per class, with checkboxes for each student (attendance).
-    - Controls: groups, rounds, seed (None/int), restarts.
-    - Output tabs: Plan, Kvalitet, Matrises.
+    - Tabs: one per class, with checkboxes for each student.
+    - Controls: groups, rounds, seed, restarts.
+    - Output tabs: Plan, Quality, Matrix (each scrollable).
     """
-    # Attendance tabs
     att_tabs, class_names, checkbox_map = make_attendance_tabs(CLASS_MAP)
 
-    # Controls
-    groups_int = widgets.BoundedIntText(value=4, min=1, max=100, step=1, description="Grupper:",
-                                        layout=widgets.Layout(width="200px"))
-    rounds_int = widgets.BoundedIntText(value=2, min=1, max=50, step=1, description="Runder:",
-                                        layout=widgets.Layout(width="200px"))
-    seed_txt = widgets.Text(value="None", description="Seed:", layout=widgets.Layout(width="200px"))
-    restarts_int = widgets.BoundedIntText(value=400, min=1, max=10000, step=1, description="Restarts:",
-                                          layout=widgets.Layout(width="220px"))
-    run_btn = widgets.Button(description="Lag plan", button_style="primary")
+    # --- Controls ---
+    groups_int = widgets.BoundedIntText(
+        value=4, min=1, max=100, step=1, description="Groups:",
+        layout=widgets.Layout(width="200px")
+    )
+    rounds_int = widgets.BoundedIntText(
+        value=2, min=1, max=50, step=1, description="Rounds:",
+        layout=widgets.Layout(width="200px")
+    )
+    seed_txt = widgets.Text(
+        value="None", description="Seed:", layout=widgets.Layout(width="200px")
+    )
+    restarts_int = widgets.BoundedIntText(
+        value=400, min=1, max=10000, step=1, description="Restarts:",
+        layout=widgets.Layout(width="220px")
+    )
+    run_btn = widgets.Button(description="Generate plan", button_style="primary")
 
-    # Outputs
-    out_schedule = widgets.Output()
-    out_quality  = widgets.Output()
-    out_matrix   = widgets.Output()
+    # --- Outputs (each with its own scrollable area) ---
+    out_box_style = dict(
+        height="800px",           # tweak as needed (e.g. "350px", "500px")
+        overflow="auto",
+        border="1px solid #ddd",
+    )
+    out_schedule = widgets.Output(layout=widgets.Layout(**out_box_style))
+    out_quality  = widgets.Output(layout=widgets.Layout(**out_box_style))
+    out_matrix   = widgets.Output(layout=widgets.Layout(**out_box_style))
+
     tabs_out = widgets.Tab(children=[out_schedule, out_quality, out_matrix])
     tabs_out.set_title(0, "Plan")
-    tabs_out.set_title(1, "Kvalitet")
-    tabs_out.set_title(2, "Matrise")
+    tabs_out.set_title(1, "Quality")
+    tabs_out.set_title(2, "Matrix")
 
-    # Help
+    # --- Help text ---
     help_html = widgets.HTML(
-        value=("""<b>Tips:</b> Bruk avhuking for oppmøte i fanen for riktig klasse. 
-        Seed = <code>None</code> gir ulike resultater hver gang; angi et tall (f.eks. <code>42</code>) for reproduksjon.
-        Restarts høyere = bedre (færre repetisjoner), men tregere.""")
+        value=(
+            "<b>Tips:</b> Use checkboxes to set attendance. "
+            "Seed = <code>None</code> gives different results each run; "
+            "enter an integer (e.g. <code>42</code>) for reproducibility. "
+            "Higher Restarts = better grouping (fewer repeats), but slower."
+        )
     )
 
     controls = widgets.HBox([groups_int, rounds_int, seed_txt, restarts_int, run_btn])
-    ui = widgets.VBox([att_tabs, controls, help_html, tabs_out])
+
+    # --- Wrap EVERYTHING in a scrollable container (outer scroll) ---
+    ui = widgets.VBox([controls, att_tabs, help_html, tabs_out], layout=widgets.Layout(height="1800px", overflow="auto")
+)
 
     def _parse_seed(text):
         t = text.strip()
@@ -340,7 +352,6 @@ def build_dashboard_with_attendance(CLASS_MAP):
         out_quality.clear_output()
         out_matrix.clear_output()
 
-        # Which class tab is selected?
         idx = att_tabs.selected_index
         selected_class = class_names[idx]
         students = get_present_from_tab(selected_class, checkbox_map)
@@ -352,7 +363,7 @@ def build_dashboard_with_attendance(CLASS_MAP):
 
         if len(students) < n_groups:
             with out_schedule:
-                print(f"Feil: Ikke nok tilstedeværende elever ({len(students)}) for {n_groups} grupper.")
+                print(f"Error: Not enough present students ({len(students)}) for {n_groups} groups.")
             return
 
         plan = schedule_groups(
@@ -363,25 +374,22 @@ def build_dashboard_with_attendance(CLASS_MAP):
             restarts=restarts
         )
 
-        # Plan
         with out_schedule:
-            print(f"Klasse: {selected_class} | Elever (tilstede): {len(students)} | Grupper/runde: {n_groups} | Runder: {n_rounds}")
+            print(f"Class: {selected_class} | Students present: {len(students)} "
+                  f"| Groups/round: {n_groups} | Rounds: {n_rounds}")
             _render_schedule(plan)
 
-        # Quality (text + plots)
         with out_quality:
             print_quality_report(plan)
             print("")
             print_repeated_pairs(plan, min_repeats=2, limit=50)
             plot_quality(plan)
 
-        # Matrix heatmap
         with out_matrix:
             plot_pair_matrix(plan)
 
     run_btn.on_click(on_run_clicked)
     display(ui)
-
 
 # --------
 # Classes 
@@ -427,7 +435,6 @@ CLASS_MAP = {
     "MyMathClass": MyMathClass,
     "MyPhysicsClass": MyPhysicsClass,
 }
-
 
 # Show the dashboard:
 build_dashboard_with_attendance(CLASS_MAP)
